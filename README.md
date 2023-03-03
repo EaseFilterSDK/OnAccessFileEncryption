@@ -40,7 +40,7 @@ Here is a c# on access file encryption example to demonstrate how to use the SDK
 
 ![File Encryption Demo](https://www.easefilter.com/images/autoencryptdemo.png)
 
-
+<pre><code class='language-mylanguage'>
 namespace AutoFileEncryption
 {
     class Program
@@ -187,6 +187,6 @@ namespace AutoFileEncryption
     }
 }
 
-
+</pre>
 
 [Read more about auto file encryption example](https://www.easefilter.com/Forums_Files/AutoFileEncryption.htm)
