@@ -40,9 +40,6 @@ Here is a c# on access file encryption example to demonstrate how to use the SDK
 
 ![File Encryption Demo](https://www.easefilter.com/images/autoencryptdemo.png)
 
-:::code language="csharp" source="intro/samples/cu/Controllers/test.cs" range="2-24,26":::
-using System;
-using EaseFilter.FilterControl;
 
 namespace AutoFileEncryption
 {
