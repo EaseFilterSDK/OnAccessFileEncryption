@@ -40,6 +40,10 @@ Here is a c# on access file encryption example to demonstrate how to use the SDK
 
 ![File Encryption Demo](https://www.easefilter.com/images/autoencryptdemo.png)
 
+1. Setup an auto encryption folder, all new created files in this folder will be encrypted automatically. The encrypted file will be decrypted automatically when the users from the whitelist access the files. It won't be decrypted when the users from the blacklist access the file, it will get the raw encrypted data.
+2. Setup an auto encryption folder, all new created files in this folder will be automatically encrypted, all processes will get the raw encrypted data when they read the encrypted files, so you can secure upload or share these files to the cloud.
+3. Setup the encryption on the go folder, files are not encrypted in this folder, the file will be encrypted automatically in memory when the user from the blacklist access the files. So, you can add the processes to the blacklist if you want to secure share the files for these processes.
+
 <pre><code class='language-mylanguage'>
 using System;
 using EaseFilter.FilterControl;
