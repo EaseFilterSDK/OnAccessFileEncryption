@@ -31,7 +31,7 @@ The CNG encryption library supports AES-NI (or the Intel Advanced Encryption Sta
 
 1. **Data encryption at rest.** Encryption at rest prevents the attacker from accessing the unencrypted data by ensuring the data is encrypted when on disk. 
 2. **Data protection.** Document encryption, file encryption is very important step for data protection, only the authorized users or processes can read the encrypted data, or will get the raw encrypted data.
-3. **Data loss prevention.**To prevent the data breach, your data is encrypted all the time, even your data was lost and found in an unauthorized place, they are protected against the unauthorized access.
+3. **Data loss prevention.** To prevent the data breach, your data is encrypted all the time, even your data was lost and found in an unauthorized place, they are protected against the unauthorized access.
 4. **Secure file sharing with DRM.** Encrypted your files with digital rights management data embedded into the encrypted header, protect, track and control your encrypted files anywhere anytime, you can grant or revoke the access control to any user at any time even the files were shared.
    
 ## A Transparent On Access File Encryption Example
@@ -39,6 +39,157 @@ The CNG encryption library supports AES-NI (or the Intel Advanced Encryption Sta
 Here is a c# on access file encryption example to demonstrate how to use the SDK. First you need to setup an encryption folder in computer A. You can configure the authorized processes and users who can read the encrypted file. Then you can setup the decryption folder in computer B if you want to distribute the encrypted file to the computer B. In order to access the encrypted file in computer B, you need to setup the authorized processes, only the authorized processes can access the encrypted files.
 
 ![File Encryption Demo](https://www.easefilter.com/images/autoencryptdemo.png)
+
+:::code language="csharp" source="intro/samples/cu/Controllers/test.cs" range="2-24,26":::
+using System;
+using EaseFilter.FilterControl;
+
+namespace AutoFileEncryption
+{
+    class Program
+    {
+        static FilterControl filterControl = new FilterControl();
+
+        static void Main(string[] args)
+        {
+            string lastError = string.Empty;
+            string licenseKey = "Email us to request a trial key: info@easefilter.com";
+
+            FilterAPI.FilterType filterType = FilterAPI.FilterType.CONTROL_FILTER
+			| FilterAPI.FilterType.ENCRYPTION_FILTER | FilterAPI.FilterType.PROCESS_FILTER;
+            int serviceThreads = 5;
+            int connectionTimeOut = 10; //seconds
+
+            try
+            {
+                //copy the right Dlls to the current folder.
+                Utils.CopyOSPlatformDependentFiles(ref lastError);
+
+                if (!filterControl.StartFilter(filterType, serviceThreads, connectionTimeOut, licenseKey, ref lastError))
+                {
+                    Console.WriteLine("Start Filter Service failed with error:" + lastError);
+                    return;
+                }
+                        
+                //setup a file filter rule for folder encryptFolder
+                string encryptFolder = "c:\\encryptFolder\\*";
+                FileFilter fileFilter = new FileFilter(encryptFolder);
+
+                //enable the encryption for the filter rule.
+                fileFilter.EnableEncryption = true;
+
+                //get the 256bits encryption key with the passphrase
+                string passPhrase = "mypassword";
+                fileFilter.EncryptionKey = Utils.GetKeyByPassPhrase(passPhrase, 32);
+
+                //disable the decyrption right, read the raw encrypted data for all except the authorized processes or users.
+                fileFilter.EnableReadEncryptedData = false;
+
+                //setup the authorized processes to decrypt the encrypted files.
+                string authorizedProcessesForEncryptFolder = "notepad.exe;wordpad.exe";
+
+                string[] processNames = authorizedProcessesForEncryptFolder.Split(new char[] { ';' });
+                if (processNames.Length > 0)
+                {
+                    foreach (string processName in processNames)
+                    {
+                        if (processName.Trim().Length > 0)
+                        {
+                            //authorized the process with the read encrypted data right.
+                            fileFilter.ProcessNameAccessRightList.Add(processName, FilterAPI.ALLOW_MAX_RIGHT_ACCESS);
+                        }
+                    }
+                }
+
+                //setup the authorized users to decrypt the encrypted files.
+                string authorizedUsersForEncryptFolder = "domainName\\user1";
+
+                if (!string.IsNullOrEmpty(authorizedUsersForEncryptFolder) && !authorizedUsersForEncryptFolder.Equals("*"))
+                {
+                    string[] userNames = authorizedUsersForEncryptFolder.Split(new char[] { ';' });
+                    if (userNames.Length > 0)
+                    {
+                        foreach (string userName in userNames)
+                        {
+                            if (userName.Trim().Length > 0)
+                            {
+                                //authorized the user with the read encrypted data right.
+                                fileFilter.userAccessRightList.Add(userName, FilterAPI.ALLOW_MAX_RIGHT_ACCESS);
+                            }
+                        }
+                    }
+
+                    if (fileFilter.userAccessRightList.Count > 0)
+                    {
+                        //set black list for all other users except the white list users.
+                        uint accessFlag = FilterAPI.ALLOW_MAX_RIGHT_ACCESS & ~(uint)FilterAPI.AccessFlag.ALLOW_READ_ENCRYPTED_FILES;
+                        //disable the decryption right, read the raw encrypted data for all except the authorized users.
+                        fileFilter.userAccessRightList.Add("*", accessFlag);
+                    }
+                }
+
+                //add the encryption file filter rule to the filter control
+                filterControl.AddFilter(fileFilter);
+
+                //setup a file filter rule for folder decryptFolder
+                string decryptFolder = "c:\\decryptFolder\\*";                
+                FileFilter decryptFileFilter = new FileFilter(decryptFolder);
+
+                //enable the encryption for the filter rule.
+                decryptFileFilter.EnableEncryption = true;
+
+                //get the 256bits encryption key with the passphrase
+                decryptFileFilter.EncryptionKey = Utils.GetKeyByPassPhrase(passPhrase, 32);
+
+                //don't encrypt the new created file in the folder.
+                decryptFileFilter.EnableEncryptNewFile = false;
+
+                //disable the decyrption right, read the raw encrypted data for all except the authorized processes or users.
+                decryptFileFilter.EnableReadEncryptedData = false;
+
+                //setup authorized processes to decrypt the encrypted files.
+                string authorizedProcessesForDecryptFolder = "notepad.exe;wordpad.exe";
+
+                processNames = authorizedProcessesForDecryptFolder.Split(new char[] { ';' });
+                if (processNames.Length > 0)
+                {
+                    foreach (string processName in processNames)
+                    {
+                        if (processName.Trim().Length > 0)
+                        {
+                            //authorized the process with the read encrypted data right.
+                            decryptFileFilter.ProcessNameAccessRightList.Add(processName, FilterAPI.ALLOW_MAX_RIGHT_ACCESS);
+                        }
+                    }
+                }
+
+                filterControl.AddFilter(decryptFileFilter);
+
+                if (!filterControl.SendConfigSettingsToFilter(ref lastError))
+                {
+                    Console.WriteLine("SendConfigSettingsToFilter failed." + lastError);
+                    return;
+                }
+
+                Console.WriteLine("Start filter service succeeded.");
+
+                // Wait for the user to quit the program.
+                Console.WriteLine("Press 'q' to quit the sample.");
+                while (Console.Read() != 'q') ;
+
+                filterControl.StopFilter();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Start filter service failed with error:" + ex.Message);
+            }
+
+        }
+
+    }
+}
+
 
 
 [Read more about auto file encryption example](https://www.easefilter.com/Forums_Files/AutoFileEncryption.htm)
