@@ -41,6 +41,9 @@ Here is a c# on access file encryption example to demonstrate how to use the SDK
 ![File Encryption Demo](https://www.easefilter.com/images/autoencryptdemo.png)
 
 <pre><code class='language-mylanguage'>
+using System;
+using EaseFilter.FilterControl;
+
 namespace AutoFileEncryption
 {
     class Program
