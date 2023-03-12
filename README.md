@@ -13,13 +13,13 @@ The EEFD utilizes the Microsoft CNG encryption libraries with the AES algorithm.
 
 ## Per Process Access Restriction
 
-The EEFD supports the per process access restriction for the on access file encryption. You an setup the whitelist or blacklist of the processes to the encrypted files. The whitelist process can read the encrypted file to get the clear text. The blacklist process only can get the encrypted raw data. The EEFD utilizes the Isolation Mini Filter Driver technology to implement two views of the encrypted file to the process. The unauthorized process will see the encrypted data view with the raw ciphertext. The authorized processes will see the decrypted data view with the plaintext.
+The EEFD supports the per process access restriction for the on access file encryption. You an setup the whitelist or blacklist of the processes to the encrypted files. The whitelist process can read the encrypted file to get the clear text. The blacklist process only can get the encrypted raw data. The EEFD utilizes the [Isolation Mini Filter Driver](https://www.easefilter.com/kb/Isolation_Filter_Driver.htm) technology to implement two views of the encrypted file to the process. The unauthorized process will see the encrypted data view with the raw ciphertext. The authorized processes will see the decrypted data view with the plaintext.
 
 ![Isolation Filter Driver](https://www.easefilter.com/images/IsolationFilter.png)
 
 ## The Encrypted File Header with DRM Embedded
 
-The EEFD supports the encryption header with the custom digital rights management (DRM) data embedded to the encrypted file. With the custom DRM data, you can define your custom encryption access policies, it allows you to fully control the encrypted file access dynamically. You can grant, revoke or expire the encrypted file access at any time, even after the encrypted file has been sent out of your organization. You can develop the security application to implement the secure file sharing solution with the EEFD.
+The EEFD supports the encryption header with the custom digital rights management (DRM) data embedded to the encrypted file. With the custom DRM data, you can define your custom encryption access policies, it allows you to fully control the encrypted file access dynamically. You can grant, revoke or expire the encrypted file access at any time, even after the encrypted file has been sent out of your organization. You can develop the security application to implement the [secure file sharing](https://blog.easefilter.com/secure-file-sharing-with-drm/) solution with the EEFD.
 
 ![Secure File Sharing](https://www.easefilter.com/images/SecureSharing.png)
 
@@ -34,7 +34,7 @@ The CNG encryption library supports AES-NI (or the Intel Advanced Encryption Sta
 3. **Data loss prevention.** To prevent the data breach, your data is encrypted all the time, even your data was lost and found in an unauthorized place, they are protected against the unauthorized access.
 4. **Secure file sharing with DRM.** Encrypted your files with digital rights management data embedded into the encrypted header, protect, track and control your encrypted files anywhere anytime, you can grant or revoke the access control to any user at any time even the files were shared.
    
-## A Transparent On Access File Encryption Example
+## A C# Transparent On Access File Encryption Example
 
 Here is a c# on access file encryption example to demonstrate how to use the SDK. First you need to setup an encryption folder in computer A. You can configure the authorized processes and users who can read the encrypted file. Then you can setup the decryption folder in computer B if you want to distribute the encrypted file to the computer B. In order to access the encrypted file in computer B, you need to setup the authorized processes, only the authorized processes can access the encrypted files.
 
